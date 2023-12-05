@@ -43,11 +43,11 @@ impl fmt::Display for Port {
 
 impl From<&str> for Port {
     fn from(value: &str) -> Self {
-        let re = Regex::new(r"^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-5]{0,5}|[0-9]{1,4})[/]?(tcp|udp)?$").unwrap();
+        let re = Regex::new(r"^(\d+)[/]?(tcp|udp)?$").unwrap();
 
         let captures = re.captures(value).expect(
             format!(
-            "{} is invalid. Format: <port>/<tcp|udp>. Protocol is optional and defaults to tcp.",
+            "{} is invalid. Format: <port>/<tcp|udp>. Protocol is optional and will default to tcp.",
             &value
         )
             .as_str(),
@@ -57,7 +57,7 @@ impl From<&str> for Port {
                 .get(1)
                 .map_or("0", |m| m.as_str())
                 .parse::<u16>()
-                .unwrap(),
+                .expect("Invalid port number. Must be within 1-65535."),
             proto: Proto::from(captures.get(2).map_or("tcp", |m| m.as_str())),
         }
     }
